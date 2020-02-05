@@ -159,13 +159,25 @@ class SeederController extends Controller
 
             switch ($data->type) {
                 case 'integer':
+                case 'smallint':
+                case 'tinyint':
+                case 'mediumint':
+                case 'int':
+                case 'bigint':
                     $fields[$column] = ['faker' => 'numberBetween(0, 10)'];
                     break;
                 case 'date':
                     $fields[$column] = ['faker' => 'date()'];
                     break;
                 case 'datetime':
+                case 'timestamp':
                     $fields[$column] = ['faker' => 'dateTime()'];
+                    break;
+                case 'year':
+                    $fields[$column] = ['faker' => 'year()'];
+                    break;
+                case 'time':
+                    $fields[$column] = ['faker' => 'time()'];
                     break;
                 default:
                     $fields[$column] = ['faker' => 'text'];
