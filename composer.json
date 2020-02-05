@@ -1,0 +1,32 @@
+{
+    "name": "antonyz89/yii2-seeder",
+    "description": "It is widget to yii2 framework to seeder database.",
+    "keywords": [
+        "antonyz89",
+        "yii2",
+        "extension",
+        "widget",
+        "seeder",
+        "yii2-seeder",
+        "yii2 seeder"
+    ],
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/antonyz89/yii2-seeder/issues",
+        "source": "https://github.com/antonyz89/yii2-seeder"
+    },
+    "authors": [
+        {
+            "name": "Antony Gabriel"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "^2.0.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "antonyz89\\seeder\\": "src"
+        }
+    }
+}
