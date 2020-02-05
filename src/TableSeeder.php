@@ -2,7 +2,7 @@
 
 namespace antonyz89\seeder;
 
-use console\controllers\SeederController;
+use antonyz89\seeder\SeederController;
 use antonyz89\seeder\helpers\CreatedAtUpdatedAt;
 use Faker\Generator;
 use Faker\Provider\pt_BR\Address;

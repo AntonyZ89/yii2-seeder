@@ -1,8 +1,7 @@
 <?php
 /** @var string $namespace */
+echo "<?php\n";
 ?>
-
-<?= "<?php\n" ?>
 namespace <?= $namespace ?>;
 
 use antonyz89\seeder\TableSeeder;
