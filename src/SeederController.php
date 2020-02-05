@@ -81,13 +81,17 @@ class SeederController extends Controller
 
         $modelsPath = self::$modelsPath;
 
+        $completePath = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
+        $customPath = null;
+
         if (strpos($model_name, '/')) {
             $_ = explode('/', $model_name);
             $model_name = array_pop($_);
             $modelsPath .= DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $_);
+            $customPath = $completePath = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
         }
 
-        $this->model = $this->getClass($modelsPath . DIRECTORY_SEPARATOR . $model_name);
+        $this->model = $this->getClass($completePath);
 
         if ($this->model === null)
             return ExitCode::OK;
@@ -103,6 +107,7 @@ class SeederController extends Controller
                 'namespace' => $this->tablesPath,
                 'table' => $this->model::tableName(),
                 'fields' => $this->generateFields(),
+                'customPath' => $customPath
             ]);
             FileHelper::createDirectory($this->tablesPath);
 

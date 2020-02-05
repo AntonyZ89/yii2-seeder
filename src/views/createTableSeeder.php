@@ -8,6 +8,7 @@
 /* @var $namespace string the new seeder class namespace */
 /* @var $table string the name table */
 /* @var $fields array the fields */
+/* @var $customPath string|null custom path to model */
 
 echo "<?php\n";
 if (!empty($namespace)) {
@@ -34,6 +35,11 @@ use antonyz89\seeder\TableSeeder;
  */
 class <?= $className ?> extends TableSeeder
 {
+
+    <?php if ($customPath !== null) {
+        echo "public \$model_path = '$customPath';";
+    } ?>
+
     /**
      * {@inheritdoc}
      */
