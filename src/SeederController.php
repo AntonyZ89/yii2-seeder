@@ -81,17 +81,18 @@ class SeederController extends Controller
 
         $modelsPath = self::$modelsPath;
 
-        $completePath = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
+        $file = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
         $customPath = null;
 
         if (strpos($model_name, '/')) {
             $_ = explode('/', $model_name);
             $model_name = array_pop($_);
             $modelsPath .= DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $_);
-            $customPath = $completePath = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
+            $file = $modelsPath . DIRECTORY_SEPARATOR . $model_name;
+            $customPath = $modelsPath;
         }
 
-        $this->model = $this->getClass($completePath);
+        $this->model = $this->getClass($file);
 
         if ($this->model === null)
             return ExitCode::OK;
