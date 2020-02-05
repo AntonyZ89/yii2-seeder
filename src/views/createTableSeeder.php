@@ -43,7 +43,7 @@ class <?= $className ?> extends TableSeeder
             $i = 0;
             foreach ($fields as $column => $properties) {
                 if($foreign = $properties->foreign) {
-                    $modelName = class_basename($foreign::className());
+                    $modelName = basename(str_replace('\\', '/', $foreign::className()));
                     $plural = pluralize($modelName);
                     $space = $i++ === 0 ? '' : "\t\t";
 
@@ -60,7 +60,7 @@ class <?= $className ?> extends TableSeeder
                     foreach ($fields as $column => $properties) {
                         $space = $i++ === 0 ? '' : "\t\t\t\t";
                         if($foreign = $properties->foreign) {
-                            $modelName = class_basename($foreign::className());
+                            $modelName = basename(str_replace('\\', '/', $foreign::className()));
                             $plural = pluralize($modelName);
                             echo $space . "'$column' => \$this->faker->randomElement($$plural)->$properties->ref_table_id,\n";
                         } else {

@@ -1,17 +1,22 @@
+<?php
+/** @var string $namespace */
+?>
+
 <?= "<?php\n" ?>
-namespace antonyz89\seeder;
+namespace <?= $namespace ?>;
+
+use antonyz89\seeder\TableSeeder;
 
 class DatabaseSeeder extends TableSeeder
 {
 
-    const ADMIN_COUNT = 1;
-    const USER_COUNT = 40;
+    const MODEL_COUNT = 10;
 
     public $skipForeignKeyChecks = true;
 
     public function run()
     {
-        (new UserTableSeeder())->run();
+        //(new ModelTableSeeder())->run();
     }
 
 }
