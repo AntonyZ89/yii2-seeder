@@ -23,7 +23,7 @@ function pluralize($word) {
 $vars = [];
 ?>
 
-use console\seeder\TableSeeder;
+use antonyz89\seeder\TableSeeder;
 <?php foreach ($fields as $column => $properties) {
     if($foreign = $properties->foreign)
         echo "use {$foreign::className()};\n";

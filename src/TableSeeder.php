@@ -1,9 +1,9 @@
 <?php
 
-namespace console\seeder;
+namespace antonyz89\seeder;
 
 use console\controllers\SeederController;
-use console\seeder\helpers\CreatedAtUpdatedAt;
+use antonyz89\seeder\helpers\CreatedAtUpdatedAt;
 use Faker\Generator;
 use Faker\Provider\pt_BR\Address;
 use Faker\Provider\pt_BR\Company;

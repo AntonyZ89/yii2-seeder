@@ -22,7 +22,8 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "^2.0.5"
+        "yiisoft/yii2": "^2.0.5",
+        "yiisoft/yii2-faker" : "*"
     },
     "autoload": {
         "psr-4": {

@@ -11,13 +11,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist antonyz89/yii2-seeder "*"
+php composer.phar require --prefer-dist antonyz89/yii2-seeder dev-master
 ```
 
 or add
 
 ```
-"antonyz89/yii2-seeder": "*"
+"antonyz89/yii2-seeder": "dev-master"
 ```
 
 to the require section of your `composer.json` file.

@@ -1,5 +1,5 @@
 <?= "<?php\n" ?>
-namespace console\seeder;
+namespace antonyz89\seeder;
 
 class DatabaseSeeder extends TableSeeder
 {
