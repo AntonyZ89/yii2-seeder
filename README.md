@@ -22,6 +22,16 @@ or add
 
 to the require section of your `composer.json` file.
 
+USAGE
+--------
+**console/config/main.php**
+```
+'controllerMap' => [
+    'seeder' => [
+        'class' => 'antonyz89\seeder\SeederController'
+    ],
+],
+```
 
 
 SEEDER COMMANDS
