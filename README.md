@@ -37,7 +37,9 @@ USAGE
 SEEDER COMMANDS
 --------------
 
-`yii seeder [model_name]`
+`yii seeder` Seed all tables in `Database::run()`
+
+`yii seeder model_name` Seed a table
 
 `yii seeder/create model_name` Create a TableSeeder in `console\seeder\tables`
 
@@ -50,6 +52,8 @@ Example:
 `entity` is the folder where `User` (model) is located inside the `common/models` directory.
 
 To change the default path for models, just change the `$modelPath` variable in `SeederController`
+
+**Only Seeders within `DatabaseSeeder::run()` will be used in `yii seeder` command**
 
 SEEDER
 ---------
