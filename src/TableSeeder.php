@@ -136,4 +136,9 @@ abstract class TableSeeder extends Migration
             echo "    > ".str_pad('', 70, '#')."\n";
         }
     }
+
+    public static function create()
+    {
+        return new static();
+    }
 }

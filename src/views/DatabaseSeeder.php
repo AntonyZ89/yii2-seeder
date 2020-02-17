@@ -15,7 +15,7 @@ class DatabaseSeeder extends TableSeeder
 
     public function run()
     {
-        //(new ModelTableSeeder())->run();
+        //ModelTableSeeder::create()->run();
     }
 
 }
