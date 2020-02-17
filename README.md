@@ -142,9 +142,10 @@ DatabaseSeeder
 -------
 
 `DatabaseSeeder` will be created on first `yii seeder/create model`
-`DatabaseSeeder` localization is `console\seeder`
 
 **DatabaseSeeder template:**
+
+**`DatabaseSeeder` localization is `console\seeder`**
 ```php
 class DatabaseSeeder extends TableSeeder
 {
