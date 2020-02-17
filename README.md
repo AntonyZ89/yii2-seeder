@@ -137,3 +137,26 @@ At the end of every Seeder, if any columns have been forgotten, a notification w
     > #    age => int(2)                                     #
     > ########################################################
 ```
+
+DatabaseSeeder
+-------
+
+`DatabaseSeeder` will be created on first `yii seeder/create model`
+`DatabaseSeeder` localization is `console\seeder`
+
+**DatabaseSeeder template:**
+```php
+class DatabaseSeeder extends TableSeeder
+{
+
+    const MODEL_COUNT = 10;
+
+    public $skipForeignKeyChecks = true;
+
+    public function run()
+    {
+        //ModelTableSeeder::create()->run();
+    }
+
+}
+```
