@@ -1,6 +1,6 @@
 <?php
 /**
- * This view is used by console/controllers/SeederController.php.
+ * This view is used by antonyz89\seeder\SeederController.php.
  *
  * The following variables are available in this view:
  */
@@ -25,6 +25,7 @@ $vars = [];
 ?>
 
 use antonyz89\seeder\TableSeeder;
+use console\seeder\DatabaseSeeder;
 <?php foreach ($fields as $column => $properties) {
     if($foreign = $properties->foreign)
         echo "use {$foreign::className()};\n";
@@ -35,11 +36,9 @@ use antonyz89\seeder\TableSeeder;
  */
 class <?= $className ?> extends TableSeeder
 {
-
-    <?php if ($customPath !== null) {
-        echo "public \$model_path = '$customPath';";
-    } ?>
-
+<?php if ($customPath !== null)
+    echo "\npublic \$model_path = '$customPath';\n";
+?>
     /**
      * {@inheritdoc}
      */
@@ -74,7 +73,6 @@ class <?= $className ?> extends TableSeeder
                         }
                     } ?>
             ]);
-        }, 10);
-
+        }, DatabaseSeeder::<?= strtoupper(substr($table, 3, strlen($table)-5)).'_COUNT' ?>);
     }
 }

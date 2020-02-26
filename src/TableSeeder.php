@@ -32,6 +32,7 @@ abstract class TableSeeder extends Migration
     public $skipForeignKeyChecks = false;
     public $model_path;
     private $insertedColumns = [];
+    private $batch = [];
 
     /**
      * TableSeeder constructor.
@@ -64,6 +65,9 @@ abstract class TableSeeder extends Migration
 
     public function __destruct()
     {
+        foreach ($this->batch as $table => $values)
+            $this->batchInsert($table, $values['columns'], $values['rows']);
+
         self::checkMissingColumns($this->insertedColumns);
     }
 
@@ -101,7 +105,8 @@ abstract class TableSeeder extends Migration
 
         $this->insertedColumns[$table] = array_keys($columns);
 
-        parent::insert($table, $columns);
+        $this->batch[$table]['columns'] = array_keys($columns);
+        $this->batch[$table]['rows'][] = array_values($columns);
     }
 
     public function truncateTable($table)

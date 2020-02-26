@@ -99,7 +99,7 @@ class SeederController extends Controller
 
         $this->createDataBaseSeederFile();
 
-        $className = Inflector::camelize($model_name) . 'TableSeeder';
+        $className = basename(($this->model)::className()) . 'TableSeeder';
 
         $file = $this->tablesPath . DIRECTORY_SEPARATOR . $className . '.php';
         if ($this->confirm("Create new seeder '$file'?")) {
