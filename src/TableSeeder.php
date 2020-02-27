@@ -32,11 +32,6 @@ abstract class TableSeeder extends Migration
     public $model_path;
     private $insertedColumns = [];
     private $batch = [];
-    public $insertType = self::BY_BATCH;
-
-    /** Use BY_INSERT to use `::insert()` method instead seeder with `::batchInsert()` on desctruction of class */
-    const BY_INSERT = 1;
-    const BY_BATCH = 2;
 
     /**
      * TableSeeder constructor.
@@ -69,10 +64,9 @@ abstract class TableSeeder extends Migration
 
     public function __destruct()
     {
-        if ($this->insertType === self::BY_BATCH) {
-            foreach ($this->batch as $table => $values)
-                $this->batchInsert($table, $values['columns'], $values['rows']);
-        }
+        foreach ($this->batch as $table => $values)
+            foreach ($values as $columns => $rows)
+                $this->batchInsert($table, explode(',', $columns), $rows);
 
         self::checkMissingColumns($this->insertedColumns);
     }
@@ -111,12 +105,7 @@ abstract class TableSeeder extends Migration
 
         $this->insertedColumns[$table] = array_keys($columns);
 
-        if ($this->insertType === self::BY_BATCH) {
-            $this->batch[$table]['columns'] = array_keys($columns);
-            $this->batch[$table]['rows'][] = array_values($columns);
-        } else {
-            parent::insert($table, $columns);
-        }
+        $this->batch[$table][implode(',', array_keys($columns))][] = array_values($columns);
     }
 
     public function truncateTable($table)
