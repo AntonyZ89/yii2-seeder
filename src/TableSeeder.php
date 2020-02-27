@@ -2,7 +2,6 @@
 
 namespace antonyz89\seeder;
 
-use antonyz89\seeder\SeederController;
 use antonyz89\seeder\helpers\CreatedAtUpdatedAt;
 use Faker\Generator;
 use Faker\Provider\pt_BR\Address;
@@ -33,6 +32,11 @@ abstract class TableSeeder extends Migration
     public $model_path;
     private $insertedColumns = [];
     private $batch = [];
+    public $insertType = self::BY_BATCH;
+
+    /** Use BY_INSERT to use `::insert()` method instead seeder with `::batchInsert()` on desctruction of class */
+    const BY_INSERT = 1;
+    const BY_BATCH = 2;
 
     /**
      * TableSeeder constructor.
@@ -65,8 +69,10 @@ abstract class TableSeeder extends Migration
 
     public function __destruct()
     {
-        foreach ($this->batch as $table => $values)
-            $this->batchInsert($table, $values['columns'], $values['rows']);
+        if ($this->insertType === self::BY_BATCH) {
+            foreach ($this->batch as $table => $values)
+                $this->batchInsert($table, $values['columns'], $values['rows']);
+        }
 
         self::checkMissingColumns($this->insertedColumns);
     }
@@ -105,8 +111,12 @@ abstract class TableSeeder extends Migration
 
         $this->insertedColumns[$table] = array_keys($columns);
 
-        $this->batch[$table]['columns'] = array_keys($columns);
-        $this->batch[$table]['rows'][] = array_values($columns);
+        if ($this->insertType === self::BY_BATCH) {
+            $this->batch[$table]['columns'] = array_keys($columns);
+            $this->batch[$table]['rows'][] = array_values($columns);
+        } else {
+            parent::insert($table, $columns);
+        }
     }
 
     public function truncateTable($table)
@@ -132,13 +142,13 @@ abstract class TableSeeder extends Migration
 
 
         if (!empty($missingColumns)) {
-            echo "    > ".str_pad(' MISSING COLUMNS ', 70, '#', STR_PAD_BOTH)."\n";
+            echo "    > " . str_pad(' MISSING COLUMNS ', 70, '#', STR_PAD_BOTH) . "\n";
             foreach ($missingColumns as $table => $columns) {
-                echo "    > ".str_pad("# TABLE: $table", 69, ' ')."#\n";
+                echo "    > " . str_pad("# TABLE: $table", 69, ' ') . "#\n";
                 foreach ($columns as [$column, $type])
-                    echo "    > ".str_pad("#    $column => $type", 69, ' ')."#\n";
+                    echo "    > " . str_pad("#    $column => $type", 69, ' ') . "#\n";
             }
-            echo "    > ".str_pad('', 70, '#')."\n";
+            echo "    > " . str_pad('', 70, '#') . "\n";
         }
     }
 
