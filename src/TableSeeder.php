@@ -13,6 +13,7 @@ use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\Migration;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class TableSeeder
@@ -114,7 +115,10 @@ abstract class TableSeeder extends Migration
         if (in_array('updated_at', $columnNames) && !in_array('updated_at', array_keys($columns)))
             $columns['updated_at'] = $this->updatedAt;
 
-        $this->insertedColumns[$table] = array_keys($columns);
+        $this->insertedColumns[$table] = ArrayHelper::merge(
+            array_keys($columns),
+            isset($this->insertedColumns[$table]) ? $this->insertedColumns[$table] : []
+        );
 
         $this->batch[$table][implode(',', array_keys($columns))][] = array_values($columns);
     }
@@ -132,21 +136,18 @@ abstract class TableSeeder extends Migration
         foreach ($insertedColumns as $table => $columns) {
             $tableColumns = Yii::$app->db->getTableSchema($table)->columns;
 
-            foreach ($tableColumns as $column) {
-                if ($column->name === 'id') continue;
-
-                if (!in_array($column->name, $columns))
-                    $missingColumns[$table][] = [$column->name, $column->dbType];
+            foreach ($tableColumns as $tableColumn) {
+                if (!$tableColumn->autoIncrement && !in_array($tableColumn->name, $columns))
+                    $missingColumns[$table][] = [$tableColumn->name, $tableColumn->dbType];
             }
         }
 
-
-        if (!empty($missingColumns)) {
+        if (count($missingColumns)) {
             echo "    > " . str_pad(' MISSING COLUMNS ', 70, '#', STR_PAD_BOTH) . "\n";
             foreach ($missingColumns as $table => $columns) {
                 echo "    > " . str_pad("# TABLE: $table", 69, ' ') . "#\n";
-                foreach ($columns as [$column, $type])
-                    echo "    > " . str_pad("#    $column => $type", 69, ' ') . "#\n";
+                foreach ($columns as [$tableColumn, $type])
+                    echo "    > " . str_pad("#    $tableColumn => $type", 69, ' ') . "#\n";
             }
             echo "    > " . str_pad('', 70, '#') . "\n";
         }
