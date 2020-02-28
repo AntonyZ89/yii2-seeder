@@ -108,10 +108,10 @@ abstract class TableSeeder extends Migration
 
         $this->generate();
 
-        if (in_array('created_at', $columnNames))
+        if (in_array('created_at', $columnNames) && !in_array('created_at', $columns))
             $columns['created_at'] = $this->createdAt;
 
-        if (in_array('updated_at', $columnNames))
+        if (in_array('updated_at', $columnNames) && !in_array('updated_at', $columns))
             $columns['updated_at'] = $this->updatedAt;
 
         $this->insertedColumns[$table] = array_keys($columns);
