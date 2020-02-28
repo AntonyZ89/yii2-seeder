@@ -23,11 +23,15 @@
     ],
     "require": {
         "yiisoft/yii2": "^2.0.5",
-        "yiisoft/yii2-faker" : "*"
+        "yiisoft/yii2-faker" : "*",
+        "yiibr/yii2-br-validator": "^1.0"
     },
     "autoload": {
         "psr-4": {
             "antonyz89\\seeder\\": "src"
-        }
+        },
+        "files": [
+            "functions.php"
+        ]
     }
 }

@@ -10,6 +10,7 @@ use Faker\Provider\pt_BR\Person;
 use Faker\Provider\pt_BR\PhoneNumber;
 use Yii;
 use yii\base\NotSupportedException;
+use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\Migration;
 
@@ -20,7 +21,8 @@ use yii\db\Migration;
  * @property Generator $faker
  * @property string $tableName
  * @property boolean $skipForeignKeyChecks
- * @property string $model_path
+ * @property string $modelPath
+ * @property ActiveRecord $modelClass
  */
 abstract class TableSeeder extends Migration
 {
@@ -29,7 +31,8 @@ abstract class TableSeeder extends Migration
     public $faker;
     public $tableName;
     public $skipForeignKeyChecks = false;
-    public $model_path;
+    public $modelPath;
+    public $modelClass;
     private $insertedColumns = [];
     private $batch = [];
 
@@ -41,8 +44,8 @@ abstract class TableSeeder extends Migration
      */
     public function __construct(array $config = [])
     {
-        if ($this->model_path === null)
-            $this->model_path = SeederController::$modelsPath;
+        if ($this->modelPath === null)
+            $this->modelPath = SeederController::$modelsPath;
 
         $this->faker = \Faker\Factory::create();
         $this->faker->addProvider(new Address($this->faker));
@@ -51,8 +54,12 @@ abstract class TableSeeder extends Migration
         $this->faker->addProvider(new PhoneNumber($this->faker));
 
         if (!$this->skipForeignKeyChecks) {
-            $class = str_replace('TableSeeder', '', array_slice(explode('\\', static::class), -1, 1)[0]);
-            $this->tableName = ("$this->model_path\\$class")::tableName();
+            if ($this->modelClass) {
+                $this->tableName = $this->modelClass::tableName();
+            } else {
+                $class = str_replace('TableSeeder', '', basename(static::class));
+                $this->tableName = ($this->modelPath . DIRECTORY_SEPARATOR . $class)::tableName();
+            }
 
             $this->disableForeginKeyChecks();
             $this->truncateTable($this->tableName);
@@ -64,10 +71,14 @@ abstract class TableSeeder extends Migration
 
     public function __destruct()
     {
-        foreach ($this->batch as $table => $values)
-            foreach ($values as $columns => $rows)
+        foreach ($this->batch as $table => $values) {
+            $total = 0;
+            foreach ($values as $columns => $rows) {
+                $total += count($rows);
                 $this->batchInsert($table, explode(',', $columns), $rows);
-
+            }
+            echo "      $total row" . ($total > 1 ? 's' : null) . ' inserted' . ($table !== $this->tableName ? " in $table" : null) . "\n";
+        }
         self::checkMissingColumns($this->insertedColumns);
     }
 

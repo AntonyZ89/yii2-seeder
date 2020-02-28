@@ -3,8 +3,18 @@ yii2-seeder
 
 It is widget to yii2 framework to seeder database.
 
-Installation
-------------
+[![Latest Stable Version](https://poser.pugx.org/antonyz89/yii2-seeder/v/stable)](https://packagist.org/packages/antonyz89/yii2-seeder)
+[![Total Downloads](https://poser.pugx.org/antonyz89/yii2-seeder/downloads)](https://packagist.org/packages/antonyz89/yii2-seeder)
+[![Latest Unstable Version](https://poser.pugx.org/antonyz89/yii2-seeder/v/unstable)](https://packagist.org/packages/antonyz89/yii2-seeder)
+[![License](https://poser.pugx.org/antonyz89/yii2-seeder/license)](https://packagist.org/packages/antonyz89/yii2-seeder)
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Seeder Commands](#seeder-commands)
+- [Seeder Template](#seeder)
+- [DatabaseSeeder Class](#databaseseeder)
+
+## Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
@@ -22,8 +32,8 @@ or add
 
 to the require section of your `composer.json` file.
 
-USAGE
---------
+## USAGE
+
 **console/config/main.php**
 ```
 'controllerMap' => [
@@ -34,12 +44,12 @@ USAGE
 ```
 
 
-SEEDER COMMANDS
---------------
+## SEEDER COMMANDS
 
 `yii seeder` Seed all tables in `Database::run()`
 
-`yii seeder model_name` Seed a table
+`yii seeder [name]` Seed a table
+- `name` without TableSeeder (e.g `yii seeder user` for `UserTableSeeder`)
 
 `yii seeder/create model_name` Create a TableSeeder in `console\seeder\tables`
 
@@ -55,8 +65,7 @@ To change the default path for models, just change the `$modelPath` variable in 
 
 **Only Seeders within `DatabaseSeeder::run()` will be used in `yii seeder` command**
 
-SEEDER
----------
+## SEEDER
  
 **EXAMPLE TEMPLATE**
 ```php
@@ -66,14 +75,31 @@ namespace console\seeder\tables;
 
 use common\models\user\User;
 use console\seeder\DatabaseSeeder;
-use console\seeder\TableSeeder;
+use antonyz89\seeder\TableSeeder;
+use yii\db\ActiveRecord;
 use Yii;
 
 class UserTableSeeder extends TableSeeder
 {
+    /** 
+     * Only necessary if the Seeder model is not in 'common\models'
+     * folder but the model's name is included on Seeder's name
+     * 
+     * @var string
+     */
+    public $modelPath = 'common\\models\\user'; // common\\models\\user\\User
+    
+    /**
+     * Only necessary if the name of Seeder don't include model's name
+     * (e.g EntityTableSeeder instead UserTableSeeder )
+     * 
+     * can be used instead $modelPath
+     * 
+     * @var ActiveRecord
+     */
+    public $modelClass = User::class; 
 
-    // optional
-    public $model_path = 'common\\models\\user'; // only necessary if the Seeder model is not in 'common\models' folder
+    // $modelPath and $modelClass are optional
 
     function run()
     {
@@ -114,16 +140,23 @@ $this->enableForeginKeyChecks();
 ```
 
 
-If the seeder model is not located in `common\models` just overwrite `$model_path`:
+If the seeder model is not located in `common\models` just overwrite `$modelPath`:
 
 ```php
-public $model_path = 'model\\directory\\here';
+public $modelPath = 'model\\directory\\here';
 ```
 
 
 **default in TableSeeder:** 
 ```php
-public $model_path = 'common\\models';
+public $modelPath = 'common\\models';
+```
+
+If the model's name is not included in seeder's name just overwrite `$modelClass` with the model's class
+
+```php
+/** @var ActiveRecord */
+public $modelPath = ModelClass::class;
 ```
 
 At the end of every Seeder, if any columns have been forgotten, a notification with all the missing columns will appear
@@ -138,10 +171,15 @@ At the end of every Seeder, if any columns have been forgotten, a notification w
     > ########################################################
 ```
 
-DatabaseSeeder
--------
+## DatabaseSeeder
 
 `DatabaseSeeder` will be created on first `yii seeder/create model`
+
+Here you will put all TableSeeder in `::run()`
+
+to run, use `yii seeder` or `yii seeder [name]`
+
+- `name` without TableSeeder (e.g `yii seeder user` for `UserTableSeeder`)
 
 **DatabaseSeeder template:**
 
