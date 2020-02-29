@@ -37,7 +37,7 @@ use console\seeder\DatabaseSeeder;
 class <?= $className ?> extends TableSeeder
 {
 <?php if ($customPath !== null)
-    echo "\npublic \$model_path = '$customPath';\n";
+    echo "\n\tpublic \$modelPath = '$customPath';\n\n";
 ?>
     /**
      * {@inheritdoc}
