@@ -58,8 +58,8 @@ abstract class TableSeeder extends Migration
             if ($this->modelClass) {
                 $this->tableName = $this->modelClass::tableName();
             } else {
-                $class = str_replace('TableSeeder', '', basename(static::class));
-                $this->tableName = ($this->modelPath . DIRECTORY_SEPARATOR . $class)::tableName();
+                $class = str_replace('TableSeeder', '', array_slice(explode('\\', static::class), -1, 1)[0]);
+                $this->tableName = ("$this->modelPath\\$class")::tableName();
             }
 
             $this->disableForeginKeyChecks();
