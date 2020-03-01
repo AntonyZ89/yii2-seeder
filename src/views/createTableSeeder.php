@@ -70,14 +70,14 @@ class <?= $className ?> extends TableSeeder
                     foreach ($fields as $column => $properties) {
                         $space = $i++ === 0 ? '' : "\t\t\t\t";
                         if($foreign = $properties->foreign) {
-                            $modelName = basename(str_replace('\\', '/', $foreign::className()));
-                            $plural = pluralize($modelName);
+                            $foreignModelName = basename(str_replace('\\', '/', $foreign::className()));
+                            $plural = pluralize($foreignModelName);
                             echo $space . "'$column' => \$this->faker->randomElement($$plural)->$properties->ref_table_id,\n";
                         } else {
                             echo $space . "'$column' => \$this->faker->$properties->faker,\n";
                         }
                     } ?>
             ]);
-        }, DatabaseSeeder::<?= strtoupper(substr($table, 3, strlen($table)-5)).'_COUNT' ?>);
+        }, DatabaseSeeder::<?= strtoupper(preg_replace("/[{%}]/", '', $table)).'_COUNT' ?>);
     }
 }
