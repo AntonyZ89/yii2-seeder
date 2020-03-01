@@ -8,7 +8,8 @@
 /* @var $namespace string the new seeder class namespace */
 /* @var $table string the name table */
 /* @var $fields array the fields */
-/* @var $customPath string|null custom path to model */
+/* @var $customNamespace string|null */
+/* @var $modelName string|null */
 
 echo "<?php\n";
 if (!empty($namespace)) {
@@ -21,6 +22,11 @@ function pluralize($word) {
     return mb_strtolower(Inflector::pluralize($word));
 }
 
+function extractModelName($class) {
+    $_ = explode('\\', $class);
+    return array_pop($_);
+}
+
 $vars = [];
 ?>
 
@@ -30,15 +36,14 @@ use console\seeder\DatabaseSeeder;
     if($foreign = $properties->foreign)
         echo "use {$foreign::className()};\n";
 } ?>
+<?= $customNamespace !== null ? "use $customNamespace\\$modelName;\n" : '' ?>
 
 /**
  * Handles the creation of seeder `<?= $table ?>`.
  */
 class <?= $className ?> extends TableSeeder
 {
-<?php if ($customPath !== null)
-    echo "\n\tpublic \$modelPath = '$customPath';\n\n";
-?>
+<?= $customNamespace !== null ? "\n\tpublic \$modelClass = $modelName::class;\n\n" : '' ?>
     /**
      * {@inheritdoc}
      */
@@ -48,7 +53,7 @@ class <?= $className ?> extends TableSeeder
             $i = 0;
             foreach ($fields as $column => $properties) {
                 if($foreign = $properties->foreign) {
-                    $modelName = basename(str_replace('\\', '/', $foreign::className()));
+                    $modelName = extractModelName($foreign::className());
                     $plural = pluralize($modelName);
                     $space = $i++ === 0 ? '' : "\t\t";
 

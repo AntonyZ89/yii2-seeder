@@ -61,7 +61,7 @@ Example:
 
 `entity` is the folder where `User` (model) is located inside the `common/models` directory.
 
-To change the default path for models, just change the `$modelPath` variable in `SeederController`
+To change the default path for models, just change the `$modelNamespace` variable in `SeederController`
 
 **Only Seeders within `DatabaseSeeder::run()` will be used in `yii seeder` command**
 
@@ -87,19 +87,19 @@ class UserTableSeeder extends TableSeeder
      * 
      * @var string
      */
-    public $modelPath = 'common\\models\\user'; // common\\models\\user\\User
+    public $modelNamespace = 'common\models\user'; // common\models\user\User
     
     /**
      * Only necessary if the name of Seeder don't include model's name
      * (e.g EntityTableSeeder instead UserTableSeeder )
      * 
-     * can be used instead $modelPath
+     * can be used instead $modelNamespace
      * 
      * @var ActiveRecord
      */
     public $modelClass = User::class; 
 
-    // $modelPath and $modelClass are optional
+    // $modelNamespace and $modelClass are optional
 
     function run()
     {
@@ -140,27 +140,26 @@ $this->enableForeginKeyChecks();
 ```
 
 
-If the seeder model is not located in `common\models` just overwrite `$modelPath`:
+If the seeder model is not located in `common\models` just overwrite `$modelNamespace`:
 
 ```php
-public $modelPath = 'model\\directory\\here';
+public $modelNamespace = 'model\directory\here';
 ```
 
 
 **default in TableSeeder:** 
 ```php
-public $modelPath = 'common\\models';
+public $modelNamespace = 'common\models';
 ```
 
 If the model's name is not included in seeder's name just overwrite `$modelClass` with the model's class
 
 ```php
 /** @var ActiveRecord */
-public $modelPath = ModelClass::class;
+public $modelClass = User::class;
 ```
 
 At the end of every Seeder, if any columns have been forgotten, a notification with all the missing columns will appear
-
 
 
 ```console

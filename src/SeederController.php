@@ -18,8 +18,10 @@ use Yii;
  * Class SeederController
  * @package antonyz89\seeder
  *
- * @property string $seederRoot
+ * @property string $seederPath
+ * @property string $seederNamespace
  * @property string $tablesPath
+ * @property string $tableSeederNamespace
  * @property string $templateFile
  * @property string $databaseFile
  * @property ActiveRecord $model
@@ -30,9 +32,11 @@ class SeederController extends Controller
     /** @var string the default command action. */
     public $defaultAction = 'seed';
 
-    public $seederRoot = 'console\seeder';
-    public $tablesPath = 'console\seeder\tables';
-    public static $modelsPath = 'common\models';
+    public $seederPath = '@app/seeder';
+    public $seederNamespace = 'console\seeder';
+    public $tablesPath = '@app/seeder/tables';
+    public $tableSeederNamespace = 'console\seeder\tables';
+    public static $modelNamespace = 'common\models';
     public $templateFile = '@antonyz89/seeder/views/createTableSeeder.php';
     public $databaseFile = '@antonyz89/seeder/views/DatabaseSeeder.php';
 
@@ -51,7 +55,7 @@ class SeederController extends Controller
     public function actionSeed($name = null)
     {
         if ($name) {
-            $seederClass = "$this->tablesPath\\{$name}TableSeeder";
+            $seederClass = "$this->tableSeederNamespace\\{$name}TableSeeder";
             if ($seeder = $this->getClass($seederClass))
                 $seeder->run();
         } else {
@@ -81,29 +85,31 @@ class SeederController extends Controller
      * ```
      * if User's Model directory is "common\models\example\User"
      *
-     * @param string $model_name the name of the new seeder. This should only contain
+     * @param string $modelName the name of the new seeder. This should only contain
      * letters, digits, underscores and/or slashes.
      *
      * @return int ExitCode::OK
      * @throws Exception if the name argument is invalid.
      */
-    public function actionCreate($model_name)
+    public function actionCreate($modelName)
     {
-        if (!preg_match('/^[\w\/]+$/', $model_name)) {
+        if (!preg_match('/^[\w\/]+$/', $modelName)) {
             throw new Exception('The seeder name should contain letters, digits, underscore and/or slash characters only.');
         }
 
-        $modelsPath = self::$modelsPath;
+        $modelNamespace = self::$modelNamespace;
 
-        $file = "$modelsPath\\$model_name";
-        $customPath = null;
+        $customNamespace = null;
 
-        if (strpos($model_name, '/')) {
-            $_ = explode('/', $model_name);
-            $model_name = array_pop($_);
-            $modelsPath .= '\\' . implode('\\', $_);
-            $file = "$modelsPath\\$model_name";
-            $customPath = $modelsPath;
+        if (strpos($modelName, '/')) {
+            $_ = explode('/', $modelName);
+            $modelName = ucfirst(array_pop($_));
+            $modelNamespace .= '\\' . implode('\\', $_);
+            $file = "$modelNamespace\\$modelName";
+            $customNamespace = $modelNamespace;
+        } else {
+            $modelName = ucfirst($modelName);
+            $file = "$modelNamespace\\$modelName";
         }
 
         $this->model = $this->getClass($file);
@@ -111,27 +117,28 @@ class SeederController extends Controller
         if ($this->model === null)
             return ExitCode::OK;
 
-        $this->createDataBaseSeederFile();
+        $_ = explode('\\', ($this->model)::className());
+        $className = array_pop($_) . 'TableSeeder';
 
-        $className = basename(($this->model)::className()) . 'TableSeeder';
-
-        $file = "$this->tablesPath/$className.php";
+        $file = Yii::getAlias("$this->tablesPath/$className.php");
         if ($this->confirm("Create new seeder '$file'?")) {
             $content = $this->generateSeederSourceCode([
                 'className' => $className,
-                'namespace' => $this->tablesPath,
-                'table' => $this->model::tableName(),
+                'namespace' => $this->tableSeederNamespace,
+                'table' => ($this->model)::tableName(),
                 'fields' => $this->generateFields(),
-                'customPath' => $customPath
+                'customNamespace' => $customNamespace,
+                'modelName' => $modelName
             ]);
-            FileHelper::createDirectory($this->tablesPath);
+            FileHelper::createDirectory(Yii::getAlias($this->tablesPath));
 
             if (!file_exists($file) || $this->confirm("\n'$className' already exists, overwrite?\nAll data will be lost irreversibly!")) {
                 file_put_contents($file, $content, LOCK_EX);
                 $this->stdout("New seeder created successfully.\n", Console::FG_GREEN);
             }
-
         }
+
+        $this->createDataBaseSeederFile();
 
         return ExitCode::OK;
     }
@@ -152,11 +159,11 @@ class SeederController extends Controller
         foreach ($foreignKeys as $fk_str => $foreignKey) {
             unset($foreignKeys[$fk_str]);
             $table = array_shift($foreignKey);
-            $column = array_key_first($foreignKey);
+            $column = array_keys($foreignKey)[0];
 
             $errorMsg = "Foreign Key for '$column' column will be ignored and a common column will be generated.\n";
 
-            $model = $this->getClass(self::$modelsPath . '\\' . Inflector::camelize($table), $errorMsg);
+            $model = $this->getClass(self::$modelNamespace . '\\' . Inflector::camelize($table), $errorMsg);
             $foreignKeys[$column] = $model;
         }
 
@@ -207,13 +214,15 @@ class SeederController extends Controller
 
     protected function createDataBaseSeederFile()
     {
-        $file = Yii::getAlias($this->seederRoot).'\DatabaseSeeder.php';
+        $file = Yii::getAlias($this->seederPath.'/DatabaseSeeder.php');
 
         if (!file_exists($file)) {
-            FileHelper::createDirectory($this->seederRoot);
+            FileHelper::createDirectory($this->seederPath);
             $content = $this->renderFile($this->databaseFile, [
-                'namespace' => $this->seederRoot,
+                'namespace' => $this->seederNamespace,
             ]);
+
+            $this->stdout("\nDatabaseSeeder created in $file\n");
 
             file_put_contents($file, $content, LOCK_EX);
         }

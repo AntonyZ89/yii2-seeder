@@ -22,7 +22,7 @@ use yii\helpers\ArrayHelper;
  * @property Generator $faker
  * @property string $tableName
  * @property boolean $skipForeignKeyChecks
- * @property string $modelPath
+ * @property string $modelNamespace
  * @property ActiveRecord $modelClass
  */
 abstract class TableSeeder extends Migration
@@ -32,7 +32,7 @@ abstract class TableSeeder extends Migration
     public $faker;
     public $tableName;
     public $skipForeignKeyChecks = false;
-    public $modelPath;
+    public $modelNamespace;
     public $modelClass;
     private $insertedColumns = [];
     private $batch = [];
@@ -45,8 +45,8 @@ abstract class TableSeeder extends Migration
      */
     public function __construct(array $config = [])
     {
-        if ($this->modelPath === null)
-            $this->modelPath = SeederController::$modelsPath;
+        if ($this->modelNamespace === null)
+            $this->modelNamespace = SeederController::$modelNamespace;
 
         $this->faker = \Faker\Factory::create();
         $this->faker->addProvider(new Address($this->faker));
@@ -56,10 +56,11 @@ abstract class TableSeeder extends Migration
 
         if (!$this->skipForeignKeyChecks) {
             if ($this->modelClass) {
-                $this->tableName = $this->modelClass::tableName();
+                $this->tableName = ($this->modelClass)::tableName();
             } else {
-                $class = str_replace('TableSeeder', '', array_slice(explode('\\', static::class), -1, 1)[0]);
-                $this->tableName = ("$this->modelPath\\$class")::tableName();
+                $_ = explode('\\', static::class);
+                $class = str_replace('TableSeeder', '', array_pop($_));
+                $this->tableName = ("$this->modelNamespace\\$class")::tableName();
             }
 
             $this->disableForeginKeyChecks();
