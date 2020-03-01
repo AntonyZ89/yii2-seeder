@@ -11,8 +11,6 @@ class DatabaseSeeder extends TableSeeder
 
     const MODEL_COUNT = 10;
 
-    public $skipForeignKeyChecks = true;
-
     public function run()
     {
         //ModelTableSeeder::create()->run();

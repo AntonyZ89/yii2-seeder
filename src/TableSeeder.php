@@ -19,21 +19,15 @@ use yii\helpers\ArrayHelper;
  * Class TableSeeder
  * @package console\seeder
  *
- * @property Generator $faker
- * @property string $tableName
- * @property boolean $skipForeignKeyChecks
- * @property string $modelNamespace
- * @property ActiveRecord $modelClass
+ * @property Generator|Address|Company|Person|PhoneNumber $faker
+ * @property boolean $skipTruncateTables
  */
 abstract class TableSeeder extends Migration
 {
     use CreatedAtUpdatedAt;
 
     public $faker;
-    public $tableName;
-    public $skipForeignKeyChecks = false;
-    public $modelNamespace;
-    public $modelClass;
+    public $skipTruncateTables = false;
     private $insertedColumns = [];
     private $batch = [];
 
@@ -45,41 +39,31 @@ abstract class TableSeeder extends Migration
      */
     public function __construct(array $config = [])
     {
-        if ($this->modelNamespace === null)
-            $this->modelNamespace = SeederController::$modelNamespace;
-
         $this->faker = \Faker\Factory::create();
         $this->faker->addProvider(new Address($this->faker));
         $this->faker->addProvider(new Company($this->faker));
         $this->faker->addProvider(new Person($this->faker));
         $this->faker->addProvider(new PhoneNumber($this->faker));
 
-        if (!$this->skipForeignKeyChecks) {
-            if ($this->modelClass) {
-                $this->tableName = ($this->modelClass)::tableName();
-            } else {
-                $_ = explode('\\', static::class);
-                $class = str_replace('TableSeeder', '', array_pop($_));
-                $this->tableName = ("$this->modelNamespace\\$class")::tableName();
-            }
-
-            $this->disableForeginKeyChecks();
-            $this->truncateTable($this->tableName);
-            $this->enableForeginKeyChecks();
-        }
-
         parent::__construct($config);
     }
 
     public function __destruct()
     {
+        if (!$this->skipTruncateTables) {
+            $this->disableForeignKeyChecks();
+            foreach ($this->batch as $table => $values)
+                $this->truncateTable($table);
+            $this->enableForeignKeyChecks();
+        }
+
         foreach ($this->batch as $table => $values) {
             $total = 0;
             foreach ($values as $columns => $rows) {
                 $total += count($rows);
                 $this->batchInsert($table, explode(',', $columns), $rows);
             }
-            echo "      $total row" . ($total > 1 ? 's' : null) . ' inserted' . ($table !== $this->tableName ? " in $table" : null) . "\n";
+            echo "      $total row" . ($total > 1 ? 's' : null) . " inserted  in $table" . "\n";
         }
         self::checkMissingColumns($this->insertedColumns);
     }
@@ -90,7 +74,7 @@ abstract class TableSeeder extends Migration
      * @throws Exception
      * @throws NotSupportedException
      */
-    public function disableForeginKeyChecks()
+    public function disableForeignKeyChecks()
     {
         Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
     }
@@ -99,7 +83,7 @@ abstract class TableSeeder extends Migration
      * @throws Exception
      * @throws NotSupportedException
      */
-    public function enableForeginKeyChecks()
+    public function enableForeignKeyChecks()
     {
         Yii::$app->db->createCommand()->checkIntegrity(true)->execute();
     }

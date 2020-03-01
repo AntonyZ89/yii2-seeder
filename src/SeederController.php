@@ -8,6 +8,7 @@ use yii\console\Controller;
 use yii\console\Exception;
 use yii\console\ExitCode;
 use yii\db\ActiveRecord;
+use yii\db\ColumnSchema;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
@@ -22,6 +23,7 @@ use Yii;
  * @property string $seederNamespace
  * @property string $tablesPath
  * @property string $tableSeederNamespace
+ * @property string $modelNamespace
  * @property string $templateFile
  * @property string $databaseFile
  * @property ActiveRecord $model
@@ -36,7 +38,7 @@ class SeederController extends Controller
     public $seederNamespace = 'console\seeder';
     public $tablesPath = '@app/seeder/tables';
     public $tableSeederNamespace = 'console\seeder\tables';
-    public static $modelNamespace = 'common\models';
+    public $modelNamespace = 'common\models';
     public $templateFile = '@antonyz89/seeder/views/createTableSeeder.php';
     public $databaseFile = '@antonyz89/seeder/views/DatabaseSeeder.php';
 
@@ -97,16 +99,13 @@ class SeederController extends Controller
             throw new Exception('The seeder name should contain letters, digits, underscore and/or slash characters only.');
         }
 
-        $modelNamespace = self::$modelNamespace;
-
-        $customNamespace = null;
+        $modelNamespace = $this->modelNamespace;
 
         if (strpos($modelName, '/')) {
             $_ = explode('/', $modelName);
             $modelName = ucfirst(array_pop($_));
             $modelNamespace .= '\\' . implode('\\', $_);
             $file = "$modelNamespace\\$modelName";
-            $customNamespace = $modelNamespace;
         } else {
             $modelName = ucfirst($modelName);
             $file = "$modelNamespace\\$modelName";
@@ -127,7 +126,7 @@ class SeederController extends Controller
                 'namespace' => $this->tableSeederNamespace,
                 'table' => ($this->model)::tableName(),
                 'fields' => $this->generateFields(),
-                'customNamespace' => $customNamespace,
+                'modelNamespace' => $modelNamespace,
                 'modelName' => $modelName
             ]);
             FileHelper::createDirectory(Yii::getAlias($this->tablesPath));
@@ -163,51 +162,81 @@ class SeederController extends Controller
 
             $errorMsg = "Foreign Key for '$column' column will be ignored and a common column will be generated.\n";
 
-            $model = $this->getClass(self::$modelNamespace . '\\' . Inflector::camelize($table), $errorMsg);
+            $model = $this->getClass($this->modelNamespace . '\\' . Inflector::camelize($table), $errorMsg);
             $foreignKeys[$column] = $model;
         }
 
+        /* @var ColumnSchema $data */
         foreach ($columns as $column => $data) {
-            if (in_array($column, ['id', 'created_at', 'updated_at'])) continue;
+            if (in_array($column, ['created_at', 'updated_at']) || $data->autoIncrement) continue;
 
             $foreign = null;
             $ref_table_id = null;
+            $faker = null;
 
             if (isset($foreignKeys[$column])) {
                 $foreign = $foreignKeys[$column];
                 $ref_table_id = $foreign->tableSchema->primaryKey[0];
             }
 
-            switch ($data->type) {
-                case 'integer':
-                case 'smallint':
-                case 'tinyint':
-                case 'mediumint':
-                case 'int':
-                case 'bigint':
-                    $fields[$column] = ['faker' => 'numberBetween(0, 10)'];
+            switch ($data->name) {
+                case 'name':
+                    $faker = 'name';
                     break;
-                case 'date':
-                    $fields[$column] = ['faker' => 'date()'];
+                case 'description':
+                    $faker = 'realText()';
                     break;
-                case 'datetime':
-                case 'timestamp':
-                    $fields[$column] = ['faker' => 'dateTime()'];
+                case 'business_name':
+                    $faker = 'company';
                     break;
-                case 'year':
-                    $fields[$column] = ['faker' => 'year()'];
+                case 'cnpj':
+                    $faker = 'cnpj()';
                     break;
-                case 'time':
-                    $fields[$column] = ['faker' => 'time()'];
+                case 'cpf':
+                    $faker = 'cpf()';
                     break;
-                default:
-                    $fields[$column] = ['faker' => 'text'];
+                case 'email':
+                    $faker = 'email';
+                    break;
             }
 
-            $fields[$column] = (object)ArrayHelper::merge($fields[$column], [
+            if (!$faker) {
+                switch ($data->type) {
+                    case 'integer':
+                    case 'smallint':
+                    case 'tinyint':
+                        if($data->dbType === 'tinyint(1)') {
+                            $faker = 'boolean';
+                            break;
+                        }
+                    case 'mediumint':
+                    case 'int':
+                    case 'bigint':
+                        $faker = 'numberBetween(0, 10)';
+                        break;
+                    case 'date':
+                        $faker = 'date()';
+                        break;
+                    case 'datetime':
+                    case 'timestamp':
+                        $faker = 'dateTime()';
+                        break;
+                    case 'year':
+                        $faker = 'year()';
+                        break;
+                    case 'time':
+                        $faker = 'time()';
+                        break;
+                    default:
+                        $faker = 'text';
+                }
+            }
+
+            $fields[$column] = (object)[
+                'faker' => $faker,
                 'foreign' => $foreign,
                 'ref_table_id' => $ref_table_id
-            ]);
+            ];
         }
         return (object)$fields;
     }

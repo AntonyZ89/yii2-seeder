@@ -8,8 +8,8 @@
 /* @var $namespace string the new seeder class namespace */
 /* @var $table string the name table */
 /* @var $fields array the fields */
-/* @var $customNamespace string|null */
-/* @var $modelName string|null */
+/* @var $modelNamespace string */
+/* @var $modelName string */
 
 echo "<?php\n";
 if (!empty($namespace)) {
@@ -36,14 +36,13 @@ use console\seeder\DatabaseSeeder;
     if($foreign = $properties->foreign)
         echo "use {$foreign::className()};\n";
 } ?>
-<?= $customNamespace !== null ? "use $customNamespace\\$modelName;\n" : '' ?>
+<?= "use $modelNamespace\\$modelName;\n" ?>
 
 /**
  * Handles the creation of seeder `<?= $table ?>`.
  */
 class <?= $className ?> extends TableSeeder
 {
-<?= $customNamespace !== null ? "\n\tpublic \$modelClass = $modelName::class;\n\n" : '' ?>
     /**
      * {@inheritdoc}
      */
@@ -53,24 +52,24 @@ class <?= $className ?> extends TableSeeder
             $i = 0;
             foreach ($fields as $column => $properties) {
                 if($foreign = $properties->foreign) {
-                    $modelName = extractModelName($foreign::className());
-                    $plural = pluralize($modelName);
+                    $foreignModelName = extractModelName($foreign::className());
+                    $plural = pluralize($foreignModelName);
                     $space = $i++ === 0 ? '' : "\t\t";
 
                     $vars[] = "$$plural";
 
-                    echo $space . "$$plural = $modelName::find()->all();\n";
+                    echo $space . "$$plural = $foreignModelName::find()->all();\n";
                 }
             } ?>
 
-        loop(function ($i) <?= !empty($vars) ? 'use ('.implode(', ', $vars).') ' : '' ?>{
-            $this->insert($this->tableName, [
+        loop(function ($i) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : '' ?>{
+            $this->insert(<?= $modelName ?>::tableName(), [
                 <?php
                     $i = 0;
                     foreach ($fields as $column => $properties) {
                         $space = $i++ === 0 ? '' : "\t\t\t\t";
                         if($foreign = $properties->foreign) {
-                            $foreignModelName = basename(str_replace('\\', '/', $foreign::className()));
+                            $foreignModelName = extractModelName($foreign::className());
                             $plural = pluralize($foreignModelName);
                             echo $space . "'$column' => \$this->faker->randomElement($$plural)->$properties->ref_table_id,\n";
                         } else {

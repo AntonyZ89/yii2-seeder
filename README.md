@@ -76,35 +76,14 @@ namespace console\seeder\tables;
 use common\models\user\User;
 use console\seeder\DatabaseSeeder;
 use antonyz89\seeder\TableSeeder;
-use yii\db\ActiveRecord;
 use Yii;
 
 class UserTableSeeder extends TableSeeder
 {
-    /** 
-     * Only necessary if the Seeder model is not in 'common\models'
-     * folder but the model's name is included on Seeder's name
-     * 
-     * @var string
-     */
-    public $modelNamespace = 'common\models\user'; // common\models\user\User
-    
-    /**
-     * Only necessary if the name of Seeder don't include model's name
-     * (e.g EntityTableSeeder instead UserTableSeeder )
-     * 
-     * can be used instead $modelNamespace
-     * 
-     * @var ActiveRecord
-     */
-    public $modelClass = User::class; 
-
-    // $modelNamespace and $modelClass are optional
-
     function run()
     {
         loop(function ($i) {
-            $this->insert($this->tableName, [
+            $this->insert(User::tableName(), [
                 'email' => "user$i@gmail.com",
                 'name' => $this->faker->name,
                 'document' => $this->faker->numerify('##############'),
@@ -120,46 +99,26 @@ class UserTableSeeder extends TableSeeder
 }
 ```
 
-By default, all TableSeeder truncate the table before inserting new data, if you didn't want that to happen in a Seeder, just overwrite `$skipForeignKeyChecks`:
+By default, all TableSeeder truncate the table before inserting new data, if you didn't want that to happen in a Seeder, just overwrite `$skipTruncateTables`:
 
 ```php
-public $skipForeignKeyChecks = true
+public $skipTruncateTables = true;
 ```
 
 
 **default in TableSeeder:** 
 ```php
-public $skipForeignKeyChecks = false;
+public $skipTruncateTables = false;
 
 ...
 
 // truncate table
-$this->disableForeginKeyChecks();
-$this->truncateTable($this->tableName);
-$this->enableForeginKeyChecks();
+$this->disableForeignKeyChecks();
+$this->truncateTable(/* table names */);
+$this->enableForeignKeyChecks();
 ```
 
-
-If the seeder model is not located in `common\models` just overwrite `$modelNamespace`:
-
-```php
-public $modelNamespace = 'model\directory\here';
-```
-
-
-**default in TableSeeder:** 
-```php
-public $modelNamespace = 'common\models';
-```
-
-If the model's name is not included in seeder's name just overwrite `$modelClass` with the model's class
-
-```php
-/** @var ActiveRecord */
-public $modelClass = User::class;
-```
-
-At the end of every Seeder, if any columns have been forgotten, a notification with all the missing columns will appear
+At the end of every Seeder, if any columns have been forgotten, a message with all the missing columns will appear
 
 
 ```console
@@ -189,11 +148,9 @@ class DatabaseSeeder extends TableSeeder
 
     const MODEL_COUNT = 10;
 
-    public $skipForeignKeyChecks = true;
-
     public function run()
     {
-        //ModelTableSeeder::create()->run();
+        ModelTableSeeder::create()->run();
     }
 
 }
