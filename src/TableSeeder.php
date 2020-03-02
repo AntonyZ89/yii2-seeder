@@ -3,6 +3,7 @@
 namespace antonyz89\seeder;
 
 use antonyz89\seeder\helpers\CreatedAtUpdatedAt;
+use Faker\Factory;
 use Faker\Generator;
 use Faker\Provider\pt_BR\Address;
 use Faker\Provider\pt_BR\Company;
@@ -19,7 +20,7 @@ use yii\helpers\ArrayHelper;
  * Class TableSeeder
  * @package console\seeder
  *
- * @property Generator|Address|Company|Person|PhoneNumber $faker
+ * @property Generator|Factory $faker
  * @property boolean $skipTruncateTables
  */
 abstract class TableSeeder extends Migration
@@ -39,11 +40,7 @@ abstract class TableSeeder extends Migration
      */
     public function __construct(array $config = [])
     {
-        $this->faker = \Faker\Factory::create();
-        $this->faker->addProvider(new Address($this->faker));
-        $this->faker->addProvider(new Company($this->faker));
-        $this->faker->addProvider(new Person($this->faker));
-        $this->faker->addProvider(new PhoneNumber($this->faker));
+        $this->faker = \Faker\Factory::create(Yii::$app->language);
 
         parent::__construct($config);
     }
