@@ -3,6 +3,12 @@ yii2-seeder
 
 It is widget to yii2 framework to seeder database.
 
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YATHVT293SXDL&source=url">
+  <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal" />
+</a>
+
+--
+
 [![Latest Stable Version](https://poser.pugx.org/antonyz89/yii2-seeder/v/stable)](https://packagist.org/packages/antonyz89/yii2-seeder)
 [![Total Downloads](https://poser.pugx.org/antonyz89/yii2-seeder/downloads)](https://packagist.org/packages/antonyz89/yii2-seeder)
 [![Latest Unstable Version](https://poser.pugx.org/antonyz89/yii2-seeder/v/unstable)](https://packagist.org/packages/antonyz89/yii2-seeder)
