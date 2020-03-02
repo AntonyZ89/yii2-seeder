@@ -1,6 +1,6 @@
 {
     "name": "antonyz89/yii2-seeder",
-    "description": "It is widget to yii2 framework to seeder database.",
+    "description": "A tool to quickly populate database with fake data",
     "keywords": [
         "antonyz89",
         "yii2",
