@@ -3,17 +3,15 @@
 namespace antonyz89\seeder;
 
 use console\seeder\DatabaseSeeder;
-use yii\base\Model;
+use Yii;
 use yii\console\Controller;
 use yii\console\Exception;
 use yii\console\ExitCode;
 use yii\db\ActiveRecord;
 use yii\db\ColumnSchema;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
 use yii\helpers\Inflector;
-use Yii;
 
 /**
  * Class SeederController
@@ -42,13 +40,22 @@ class SeederController extends Controller
     public $templateFile = '@antonyz89/seeder/views/createTableSeeder.php';
     public $databaseFile = '@antonyz89/seeder/views/DatabaseSeeder.php';
 
+    /** Seeder on YII_ENV === 'prod' */
+    public $runOnProd;
+
     /** @var ActiveRecord */
     protected $model = null;
 
+    public function options($actionID)
+    {
+        return ['runOnProd'];
+    }
+
     protected function getClass($path, $end = "\n")
     {
-        if (class_exists($path))
+        if (class_exists($path)) {
             return new $path;
+        }
 
         $this->stdout("Class $path not exists. $end");
         return null;
@@ -56,10 +63,16 @@ class SeederController extends Controller
 
     public function actionSeed($name = null)
     {
+        if (YII_ENV_PROD && !$this->runOnProd) {
+            $this->stdout("YII_ENV is set to 'prod'.\nUse seeder is not possible on production systems. use '--runOnProd' to ignore it.\n");
+            return ExitCode::OK;
+        }
+
         if ($name) {
             $seederClass = "$this->tableSeederNamespace\\{$name}TableSeeder";
-            if ($seeder = $this->getClass($seederClass))
+            if ($seeder = $this->getClass($seederClass)) {
                 $seeder->run();
+            }
         } else {
             (new DatabaseSeeder())->run();
         }
@@ -205,7 +218,7 @@ class SeederController extends Controller
                     case 'integer':
                     case 'smallint':
                     case 'tinyint':
-                        if($data->dbType === 'tinyint(1)') {
+                        if ($data->dbType === 'tinyint(1)') {
                             $faker = 'boolean';
                             break;
                         }
@@ -243,7 +256,7 @@ class SeederController extends Controller
 
     protected function createDataBaseSeederFile()
     {
-        $file = Yii::getAlias($this->seederPath.'/DatabaseSeeder.php');
+        $file = Yii::getAlias($this->seederPath . '/DatabaseSeeder.php');
 
         if (!file_exists($file)) {
             FileHelper::createDirectory($this->seederPath);
