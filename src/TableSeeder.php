@@ -40,7 +40,7 @@ abstract class TableSeeder extends Migration
      */
     public function __construct(array $config = [])
     {
-        $this->faker = \Faker\Factory::create(Yii::$app->language);
+        $this->faker = \Faker\Factory::create(str_replace('-', '_', Yii::$app->language));
 
         parent::__construct($config);
     }
