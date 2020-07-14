@@ -114,14 +114,18 @@ abstract class TableSeeder extends Migration
 
         $this->generate();
 
-        if (!array_key_exists('created_at', $columns) && in_array('created_at', $columnNames, true)) {
+        if (!in_array('created_at', $columns, true) && in_array('created_at', $columnNames, true)) {
             $columns[] = 'created_at';
-            $rows[] = $this->createdAt;
+            for ($i = 0, $max = count($rows); $i < $max; $i++) {
+                $rows[$i][] = $this->createdAt;
+            }
         }
 
-        if (!array_key_exists('updated_at', $columns) && in_array('updated_at', $columnNames, true)) {
+        if (!in_array('updated_at', $columns, true) && in_array('updated_at', $columnNames, true)) {
             $columns[] = 'updated_at';
-            $rows[] = $this->updatedAt;
+            for ($i = 0, $max = count($rows); $i < $max; $i++) {
+                $rows[$i][] = $this->updatedAt;
+            }
         }
 
         $this->insertedColumns[$table] = ArrayHelper::merge(
