@@ -17,12 +17,12 @@ trait WeightedRandom
      * @return int|string
      */
     static function getRandomWeightedElement(array $weightedValues) {
-        $rand = mt_rand(1, (int) array_sum($weightedValues));
+        $rand = mt_rand(1, (int) array_sum(array_keys($weightedValues)));
 
         foreach ($weightedValues as $key => $value) {
-            $rand -= $value;
+            $rand -= $key;
             if ($rand <= 0) {
-                return $key;
+                return $value;
             }
         }
     }
