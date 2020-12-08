@@ -126,11 +126,12 @@ class SeederController extends Controller
 
         $this->model = $this->getClass($file);
 
-        if ($this->model === null)
+        if ($this->model === null) {
             return ExitCode::OK;
+        }
 
-        $_ = explode('\\', ($this->model)::className());
-        $className = array_pop($_) . 'TableSeeder';
+        $_ = explode('\\', get_class($this->model));
+        $className = last($_) . 'TableSeeder';
 
         $file = Yii::getAlias("$this->tablesPath/$className.php");
         if ($this->confirm("Create new seeder '$file'?")) {
@@ -139,8 +140,8 @@ class SeederController extends Controller
                 'namespace' => $this->tableSeederNamespace,
                 'table' => ($this->model)::tableName(),
                 'fields' => $this->generateFields(),
-                'modelNamespace' => $modelNamespace,
-                'modelName' => $modelName
+                'modelName' => array_pop($_),
+                'modelNamespace' => implode('\\', $_)
             ]);
             FileHelper::createDirectory(Yii::getAlias($this->tablesPath));
 

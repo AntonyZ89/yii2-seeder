@@ -23,8 +23,7 @@ function pluralize($word) {
 }
 
 function extractModelName($class) {
-    $_ = explode('\\', $class);
-    return array_pop($_);
+    return last(explode('\\', $class));
 }
 
 $vars = [];
@@ -62,7 +61,7 @@ class <?= $className ?> extends TableSeeder
                 }
             } ?>
 
-        loop(function ($i) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : '' ?>{
+        loop(function ($i) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : null ?>{
             $this->insert(<?= $modelName ?>::tableName(), [
                 <?php
                     $i = 0;

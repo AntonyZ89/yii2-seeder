@@ -15,4 +15,17 @@ if (!function_exists('loop')) {
             }
         }
     }
+
+    if (!function_exists('last')) {
+        /**
+         * Get the last element from an array.
+         *
+         * @param array $array
+         * @return mixed
+         */
+        function last(array $array)
+        {
+            return end($array);
+        }
+    }
 }

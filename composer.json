@@ -22,6 +22,8 @@
         }
     ],
     "require": {
+        "php": ">=7.0",
+        "ext-mbstring": "*",
         "yiisoft/yii2": "^2.0.5",
         "yiisoft/yii2-faker" : "*",
         "yiibr/yii2-br-validator": "^1.0"
