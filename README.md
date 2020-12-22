@@ -53,6 +53,8 @@ to the require section of your `composer.json` file.
 `yii seeder` Seed all tables in `Database::run()`
 
 `yii seeder [name]` Seed a table
+
+`yii seeder [name]:[funtion_name]` Seed a table and run a specific function from selected TableSeeder
 - `name` without TableSeeder (e.g `yii seeder user` for `UserTableSeeder`)
 
 `yii seeder/create model_name` Create a TableSeeder in `console\seeder\tables`

@@ -68,10 +68,14 @@ class SeederController extends Controller
             return ExitCode::OK;
         }
 
+        $explode = explode(':', $name);
+        $name = $explode[0];
+        $function = $explode[1] ?? null;
+
         if ($name) {
             $seederClass = "$this->tableSeederNamespace\\{$name}TableSeeder";
             if ($seeder = $this->getClass($seederClass)) {
-                $seeder->run();
+                $seeder->{$function ?? 'run'}();
             }
         } else {
             (new DatabaseSeeder())->run();
