@@ -18,14 +18,6 @@ if (!empty($namespace)) {
 
 use yii\helpers\Inflector;
 
-function pluralize($word) {
-    return mb_strtolower(Inflector::pluralize($word));
-}
-
-function extractModelName($class) {
-    return last(explode('\\', $class));
-}
-
 $vars = [];
 ?>
 
@@ -47,20 +39,6 @@ class <?= $className ?> extends TableSeeder
      */
     function run()
     {
-        <?php
-            $i = 0;
-            foreach ($fields as $column => $properties) {
-                if($foreign = $properties->foreign) {
-                    $foreignModelName = extractModelName($foreign::className());
-                    $plural = pluralize($foreignModelName);
-                    $space = $i++ === 0 ? '' : "\t\t";
-
-                    $vars[] = "$$plural";
-
-                    echo $space . "$$plural = $foreignModelName::find()->all();\n";
-                }
-            } ?>
-
         loop(function ($i) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : null ?>{
             $this->insert(<?= $modelName ?>::tableName(), [
                 <?php
@@ -68,14 +46,14 @@ class <?= $className ?> extends TableSeeder
                     foreach ($fields as $column => $properties) {
                         $space = $i++ === 0 ? '' : "\t\t\t\t";
                         if($foreign = $properties->foreign) {
-                            $foreignModelName = extractModelName($foreign::className());
-                            $plural = pluralize($foreignModelName);
-                            echo $space . "'$column' => \$this->faker->randomElement($$plural)->$properties->ref_table_id,\n";
+                            $count = strtoupper(preg_replace("/[{%}]/", '', $foreign::tableName())) . '_COUNT';
+                        
+                            echo $space . "'$column' => \$this->faker->numberBetween(1, DatabaseSeeder::$count),\n";
                         } else {
                             echo $space . "'$column' => \$this->faker->$properties->faker,\n";
                         }
                     } ?>
             ]);
-        }, DatabaseSeeder::<?= strtoupper(preg_replace("/[{%}]/", '', $table)).'_COUNT' ?>);
+        }, DatabaseSeeder::<?= strtoupper(preg_replace("/[{%}]/", '', $table)) ?>_COUNT);
     }
 }
