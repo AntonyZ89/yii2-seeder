@@ -24,8 +24,8 @@ abstract class TableSeeder extends Migration
 
     public $faker;
     public $skipTruncateTables = false;
-    private $insertedColumns = [];
-    private $batch = [];
+    protected $insertedColumns = [];
+    protected $batch = [];
 
     /**
      * TableSeeder constructor.
@@ -60,7 +60,8 @@ abstract class TableSeeder extends Migration
             }
             echo "      $total row" . ($total > 1 ? 's' : null) . " inserted  in $table" . "\n";
         }
-        self::checkMissingColumns($this->insertedColumns);
+
+        $this->checkMissingColumns($this->insertedColumns);
     }
 
     abstract function run();
@@ -71,7 +72,7 @@ abstract class TableSeeder extends Migration
      */
     public function disableForeignKeyChecks()
     {
-        Yii::$app->db->createCommand()->checkIntegrity(false)->execute();
+        $this->db->createCommand()->checkIntegrity(false)->execute();
     }
 
     /**
@@ -80,12 +81,12 @@ abstract class TableSeeder extends Migration
      */
     public function enableForeignKeyChecks()
     {
-        Yii::$app->db->createCommand()->checkIntegrity(true)->execute();
+        $this->db->createCommand()->checkIntegrity(true)->execute();
     }
 
     public function insert($table, $columns)
     {
-        $columnNames = Yii::$app->db->getTableSchema($table)->columnNames;
+        $columnNames = $this->db->getTableSchema($table)->columnNames;
 
         $this->generate();
 
@@ -110,7 +111,7 @@ abstract class TableSeeder extends Migration
      */
     public function batchInsert($table, $columns, $rows)
     {
-        $columnNames = Yii::$app->db->getTableSchema($table)->columnNames;
+        $columnNames = $this->db->getTableSchema($table)->columnNames;
 
         $this->generate();
 
@@ -138,21 +139,12 @@ abstract class TableSeeder extends Migration
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function truncateTable($table)
-    {
-        $this->db = Yii::$app->db;
-        parent::truncateTable($table);
-    }
-
-    private static function checkMissingColumns($insertedColumns)
+    protected function checkMissingColumns($insertedColumns)
     {
         $missingColumns = [];
 
         foreach ($insertedColumns as $table => $columns) {
-            $tableColumns = Yii::$app->db->getTableSchema($table)->columns;
+            $tableColumns = $this->db->getTableSchema($table)->columns;
 
             foreach ($tableColumns as $tableColumn) {
                 if (!$tableColumn->autoIncrement && !in_array($tableColumn->name, $columns, true)) {
