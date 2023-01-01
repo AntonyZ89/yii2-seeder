@@ -264,7 +264,7 @@ class SeederController extends Controller
         $file = Yii::getAlias($this->seederPath . '/DatabaseSeeder.php');
 
         if (!file_exists($file)) {
-            FileHelper::createDirectory($this->seederPath);
+            FileHelper::createDirectory(Yii::getAlias($this->seederPath));
             $content = $this->renderFile($this->databaseFile, [
                 'namespace' => $this->seederNamespace,
             ]);
