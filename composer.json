@@ -1,14 +1,13 @@
 {
-    "name": "antonyz89/yii2-seeder",
+    "name": "mootensai/yii2-seeder",
     "description": "A tool to quickly populate database with fake data",
     "keywords": [
-        "antonyz89",
+        "mootensai",
         "yii2",
         "extension",
         "widget",
         "seeder",
-        "yii2-seeder",
-        "yii2 seeder"
+        "yii2-seeder"
     ],
     "type": "yii2-extension",
     "license": "BSD-3-Clause",
@@ -19,6 +18,9 @@
     "authors": [
         {
             "name": "Antony Gabriel"
+        },
+        {
+            "name": "Yohanes Candrajaya"
         }
     ],
     "require": {
@@ -30,7 +32,7 @@
     },
     "autoload": {
         "psr-4": {
-            "antonyz89\\seeder\\": "src"
+            "mootensai\\seeder\\": "src"
         },
         "files": [
             "functions.php"
