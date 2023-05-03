@@ -1,6 +1,6 @@
 <?php
 
-namespace antonyz89\seeder\helpers;
+namespace mootensai\seeder\helpers;
 
 use Faker\Provider\DateTime;
 
@@ -17,14 +17,14 @@ trait CreatedAtUpdatedAt
     public function generate($start = '-90 days')
     {
         $this->generated = DateTime::dateTimeBetween($start);
-        $this->createdAt = $this->generated->getTimestamp();
+        $this->createdAt = $this->generated->format('Y-m-d H:i:s');
 
-        $this->updatedAt = DateTime::dateTimeBetween($this->generated, 'now')->getTimestamp();
+        $this->updatedAt = DateTime::dateTimeBetween($this->generated, 'now')->format('Y-m-d H:i:s');
         return $this->createdAt;
     }
 
     public function newUpdatedAt($end = 'now')
     {
-        return DateTime::dateTimeBetween($this->generated, $end)->getTimestamp();
+        return DateTime::dateTimeBetween($this->generated, $end)->format('Y-m-d H:i:s');
     }
 }

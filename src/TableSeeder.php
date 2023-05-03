@@ -1,8 +1,8 @@
 <?php
 
-namespace antonyz89\seeder;
+namespace mootensai\seeder;
 
-use antonyz89\seeder\helpers\CreatedAtUpdatedAt;
+use mootensai\seeder\helpers\CreatedAtUpdatedAt;
 use Faker\Factory;
 use Faker\Generator;
 use Yii;
@@ -64,7 +64,7 @@ abstract class TableSeeder extends Migration
         $this->checkMissingColumns($this->insertedColumns);
     }
 
-    abstract function run();
+    abstract function run($count = 10);
 
     /**
      * @throws Exception

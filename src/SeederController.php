@@ -1,8 +1,7 @@
 <?php
 
-namespace antonyz89\seeder;
+namespace mootensai\seeder;
 
-use console\seeder\DatabaseSeeder;
 use Yii;
 use yii\console\Controller;
 use yii\console\Exception;
@@ -15,7 +14,7 @@ use yii\helpers\Inflector;
 
 /**
  * Class SeederController
- * @package antonyz89\seeder
+ * @package mootensai\seeder
  *
  * @property string $seederPath
  * @property string $seederNamespace
@@ -33,12 +32,12 @@ class SeederController extends Controller
     public $defaultAction = 'seed';
 
     public $seederPath = '@app/seeder';
-    public $seederNamespace = 'console\seeder';
+    public $seederNamespace = 'app\seeder';
     public $tablesPath = '@app/seeder/tables';
-    public $tableSeederNamespace = 'console\seeder\tables';
-    public $modelNamespace = 'common\models';
-    public $templateFile = '@antonyz89/seeder/views/createTableSeeder.php';
-    public $databaseFile = '@antonyz89/seeder/views/DatabaseSeeder.php';
+    public $tableSeederNamespace = 'app\seeder\tables';
+    public $modelNamespace = 'app';
+    public $templateFile = '@mootensai/seeder/views/createTableSeeder.php';
+    public $databaseFile = '@mootensai/seeder/views/DatabaseSeeder.php';
 
     /** Seeder on YII_ENV === 'prod' */
     public $runOnProd;
@@ -61,7 +60,7 @@ class SeederController extends Controller
         return null;
     }
 
-    public function actionSeed($name = null)
+    public function actionSeed($name = null, $numRows = 10)
     {
         if (YII_ENV_PROD && !$this->runOnProd) {
             $this->stdout("YII_ENV is set to 'prod'.\nUse seeder is not possible on production systems. use '--runOnProd' to ignore it.\n");
@@ -75,10 +74,13 @@ class SeederController extends Controller
         if ($name) {
             $seederClass = "$this->tableSeederNamespace\\{$name}TableSeeder";
             if ($seeder = $this->getClass($seederClass)) {
-                $seeder->{$function ?? 'run'}();
+                $seeder->{$function ?? 'run'}($numRows);
             }
         } else {
-            (new DatabaseSeeder())->run();
+            $databaseClass = "$this->seederNamespace\\DatabaseSeeder";
+            if ($database = $this->getClass($databaseClass)) {
+                $database->{$function ?? 'run'}($numRows);
+            }
         }
     }
 
@@ -112,9 +114,6 @@ class SeederController extends Controller
      */
     public function actionCreate($modelName)
     {
-        if (!preg_match('/^[\w\/]+$/', $modelName)) {
-            throw new Exception('The seeder name should contain letters, digits, underscore and/or slash characters only.');
-        }
 
         $modelNamespace = $this->modelNamespace;
 
@@ -230,14 +229,14 @@ class SeederController extends Controller
                     case 'mediumint':
                     case 'int':
                     case 'bigint':
-                        $faker = 'numberBetween(0, 10)';
+                        $faker = 'numberBetween(0, $count)';
                         break;
                     case 'date':
                         $faker = 'date()';
                         break;
                     case 'datetime':
                     case 'timestamp':
-                        $faker = 'dateTime()';
+                        $faker = 'dateTime()->format("Y-m-d H:i:s")';
                         break;
                     case 'year':
                         $faker = 'year()';

@@ -1,6 +1,6 @@
 <?php
 /**
- * This view is used by antonyz89\seeder\SeederController.php.
+ * This view is used by mootensai\seeder\SeederController.php.
  *
  * The following variables are available in this view:
  */
@@ -21,8 +21,7 @@ use yii\helpers\Inflector;
 $vars = [];
 ?>
 
-use antonyz89\seeder\TableSeeder;
-use console\seeder\DatabaseSeeder;
+use mootensai\seeder\TableSeeder;
 <?php foreach ($fields as $column => $properties) {
     if($foreign = $properties->foreign)
         echo "use {$foreign::className()};\n";
@@ -37,23 +36,23 @@ class <?= $className ?> extends TableSeeder
     /**
      * {@inheritdoc}
      */
-    function run()
+    function run($count = 10)
     {
-        loop(function ($i) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : null ?>{
+        loop(function ($count) <?= count($vars) ? 'use ('. implode(', ', $vars) .') ' : null ?>{
             $this->insert(<?= $modelName ?>::tableName(), [
                 <?php
                     $i = 0;
                     foreach ($fields as $column => $properties) {
                         $space = $i++ === 0 ? '' : "\t\t\t\t";
                         if($foreign = $properties->foreign) {
-                            $count = strtoupper(preg_replace("/[{%}]/", '', $foreign::tableName())) . '_COUNT';
+                            $count = '\$count';
                         
-                            echo $space . "'$column' => \$this->faker->numberBetween(1, DatabaseSeeder::$count),\n";
+                            echo $space . "'$column' => \$this->faker->numberBetween(1, \$count),\n";
                         } else {
                             echo $space . "'$column' => \$this->faker->$properties->faker,\n";
                         }
                     } ?>
             ]);
-        }, DatabaseSeeder::<?= strtoupper(preg_replace("/[{%}]/", '', $table)) ?>_COUNT);
+        }, $count);
     }
 }

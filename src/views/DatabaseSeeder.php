@@ -4,14 +4,12 @@ echo "<?php\n";
 ?>
 namespace <?= $namespace ?>;
 
-use antonyz89\seeder\TableSeeder;
+use mootensai\seeder\TableSeeder;
 
 class DatabaseSeeder extends TableSeeder
 {
 
-    const MODEL_COUNT = 10;
-
-    public function run()
+    public function run($count = 10)
     {
         //ModelTableSeeder::create()->run();
     }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace antonyz89\seeder\helpers;
+namespace mootensai\seeder\helpers;
 
 trait WeightedRandom
 {
