@@ -67,12 +67,12 @@ class SeederController extends Controller
             $this->stdout("YII_ENV is set to 'prod'.\nUse seeder is not possible on production systems. use '--runOnProd' to ignore it.\n");
             return ExitCode::OK;
         }
-
-        $explode = explode(':', $name);
-        $name = $explode[0];
-        $function = $explode[1] ?? null;
-
+        
         if ($name) {
+            $explode = explode(':', $name);
+            $name = $explode[0];
+            $function = $explode[1] ?? null;
+            
             $seederClass = "$this->tableSeederNamespace\\{$name}TableSeeder";
             if ($seeder = $this->getClass($seederClass)) {
                 $seeder->{$function ?? 'run'}();
